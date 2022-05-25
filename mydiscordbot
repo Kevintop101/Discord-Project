@@ -1,0 +1,137 @@
+import discord
+from discord.ext import commands
+import random
+import praw
+# I had to import 4 different modules: discord module, then from the discord extension import commands, random module, 
+# and praw which is the reddit api wrapper
+
+# then I set reddit = to a reddit account, to access the memes
+reddit = praw.Reddit(client_id = "hy5msvpKyiOrHj6OkeoM8w",
+                    client_secret = "tDS3PoLMOlXwBNTDOlR5CeoSagim8g",
+                    username = "kevintop10",   
+                    password = "the8ththe",
+                    user_agent = "pythonpraw")
+
+#sets client equal to command.bot and sets the prefix to dash
+client = commands.Bot(command_prefix = '-')
+
+#the command below executes when the bot is booted up
+@client.event
+async def on_ready():
+    print("Bot is online. ")
+#in the terminal you can see "bot is online.""
+
+#moving on to the reddit meme command
+#this command gets called when you send -meme in a channel
+#it goes through the hottest 50 memes in the subbreddit "memes"
+#then returns a random meme, with an image using the Embed command
+@client.command()
+async def meme(ctx):
+    subreddit = reddit.subreddit("memes")
+    all_subs = []
+
+    hot = subreddit.hot(limit = 50)
+
+    for submission in hot:
+        all_subs.append(submission)
+    #appends to submission
+    random_sub = random.choice (all_subs)
+    #chooses random meme
+    name = random_sub.title
+    url = random_sub.url
+
+    em = discord.Embed(title = name)
+    em.set_image(url = url)
+    #returns the image
+    await ctx.send(embed = em)
+
+#this next command allows you to say hello to the bot in two different ways.
+#you can use either hello or hi and it will respond to you
+@client.command(aliases= ['Hello', 'hello', 'hi', 'Hi'])
+async def greeting(ctx):
+    greetings = ['Hi', 'Hello', 'Nice seeing you here', 'Greetings Human']
+    await ctx.send(random.choice(greetings))
+#the -displaycommands allows you to display the commands and help the user get to know the commands
+#with a nice background in discord
+@client.command()
+async def displaycommands(ctx):
+    embed = discord.Embed(
+        title = 'Commands',
+        description = 'All the commands of this bot',
+        colour = discord.Colour.blue()
+    )
+
+    embed.set_image(url='https://clipground.com/images/auburn-logo-change.png')
+    embed.set_thumbnail(url='https://cdn-images-1.medium.com/max/800/0*FDdiWdrriXPKGNyf.png')
+    embed.set_author(name='Project Auburn Discord Bot',
+    icon_url='https://clipground.com/images/auburn-logo-change.png')
+    embed.add_field(name='-hi, hello', value='Says hello to the bot', inline=True)
+    embed.add_field(name='-joke', value='Gets a funny joke', inline=True)
+    embed.add_field(name='-knockknock', value='Gets a knock knock joke', inline=True)
+    embed.add_field(name='-8ball', value='Ask a question after your command', inline=True)
+    embed.add_field(name='-meme', value='Gets a meme from reddit', inline=True)
+
+    await ctx.send(embed=embed)
+#the joke command sends a random joke from the txt up above, with 136 jokes it is unlikely that you will receive the same joke twice
+@client.command()
+async def joke(ctx):
+    with open('/Applications/Jokes.txt', 'r', encoding='utf8') as f:
+        joke_list = f.readlines()
+    msg = random.choice(joke_list) 
+    await ctx.send(msg) 
+
+#this is the 8 ball command which allows you to ask it any yes or no question and acts as a real 8 ball
+#the list below includes 10 yes answers, 5 neutrals, and 5 negative responses.
+@client.command(aliases=['8ball', 'fortune'])
+async def _8ball(ctx, *, question):
+    responses = ['It is certain',
+'Without a doubt',  
+'You may rely on it',
+'Yes definitely',
+'It is decidedly so',
+'As I see it, yes',
+'Most likely',
+'Yes',
+'Outlook good',
+'Signs point to yes',
+'Reply hazy try again',
+'Better not tell you now',
+'Ask again later',
+'Cannot predict now',
+'Concentrate and ask again',
+'Don’t count on it',
+'Outlook not so good',
+'My sources say no',
+'Very doubtful',
+'My reply is no']
+    await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
+    #await ctx.send and in the parenthesis it is formatted to repeat the question and give a random responseio``
+
+#-knockknock lets you get a knock knock joke from the knockjokes.txt
+#in the def check(msg), it waits for the user to respond with 'who's there?' to run the second part of the command
+#then you must use the bot's response and add a "{bot's response} who?" at the end.
+@client.command()
+async def knockknock(ctx):
+    await ctx.send("Knock Knock!")
+    
+    def check(msg):
+        return msg.content == "who's there?" and msg.channel == ctx.channel and msg.author == ctx.author
+    await client.wait_for("message", check=check, timeout = 60.0)
+
+    
+    with open("/Applications/knockjokes.txt", "r", encoding="utf8") as f:
+        knock_joke_list = f.readlines()
+    joke = random.choice(knock_joke_list).split("*") 
+    who = joke[0] 
+    await ctx.send(who)
+
+    
+    message = f"{who} who?"
+    def check1(msg):
+        return msg.content == message and msg.channel == ctx.channel and msg.author == ctx.author
+    await client.wait_for("message", check=check1, timeout = 60.0)
+
+    await ctx.send(joke[1]) 
+#with 50 jokes it is unlikely to get the same joke twice
+#then to run the bot we entered the bot token inside the parenthesis
+client.run('OTA3NzMxMjg1OTMyMzc2MTI0.YYrcow.8Ei3W1zUZPAfIvBo175YoQu5hZA')
