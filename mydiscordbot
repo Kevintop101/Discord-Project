@@ -8,8 +8,8 @@ import praw
 # then I set reddit = to a reddit account, to access the memes
 reddit = praw.Reddit(client_id = "hy5msvpKyiOrHj6OkeoM8w",
                     client_secret = "tDS3PoLMOlXwBNTDOlR5CeoSagim8g",
-                    username = "kevintop10",   
-                    password = "the8ththe",
+                    username = "username",   
+                    password = "password",
                     user_agent = "pythonpraw")
 
 #sets client equal to command.bot and sets the prefix to dash
@@ -134,4 +134,4 @@ async def knockknock(ctx):
     await ctx.send(joke[1]) 
 #with 50 jokes it is unlikely to get the same joke twice
 #then to run the bot we entered the bot token inside the parenthesis
-client.run('OTA3NzMxMjg1OTMyMzc2MTI0.YYrcow.8Ei3W1zUZPAfIvBo175YoQu5hZA')
+client.run('Discord Token')
